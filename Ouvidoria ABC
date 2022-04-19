@@ -1,0 +1,92 @@
+import requests
+from tkinter import *
+
+def ouvidoria():
+    print()
+    print('\033[1;34;34m-~\033[m' * 25)
+    print('\033[4;35;35mMenu\033[m')
+    print()
+    print('\033[1;34;36m🎓 Ouvidoria ABC 🎓\033[m')
+    print()
+    opcao = 0
+    listaProtocolos = []
+    listaSugetao = []
+    listaReclamacao = []
+    listaElogio = []
+    protocoloQuebrado = []
+    protocoloSplited = []
+    while opcao != 7:
+
+        print('\033[4;34;36mOpções:\033[m')
+        print('1) Listar todas as manifestações')
+        print('2) Listar todas as sugestões')
+        print('3) Listar todas as reclamações')
+        print('4) Listar todos os elogios')
+        print('5) Pesquisar protocolo por número de (ID)')
+        print('6) Enviar uma manifestação')
+        print('7) Sair do programa')
+        print()
+        opcao = int(input('Digite a opção: '))
+        if 7 < opcao > 1:
+            print('Digite uma opção valida!')
+            continue
+        elif opcao == 1:
+            print('Lista de todas as manifestações:')
+            for manifestação in listaProtocolos:
+                manifestaçãoQuebrado = manifestação.split('#')
+                print(
+                    f'Protocolo:{manifestaçãoQuebrado[0]}, Nome:{manifestaçãoQuebrado[1]},Tipo da manifestação: {manifestaçãoQuebrado[2]}, descrição: {manifestaçãoQuebrado[3]}')
+        elif opcao == 2:
+            print('Lista de todas as sugestões:')
+            for manifestação in listaSugetao:
+                manifestaçãoQuebrado = manifestação.split('#')
+                print(
+                    f'Protocolo:{manifestaçãoQuebrado[0]}, Nome:{manifestaçãoQuebrado[1]},Tipo da manifestação: {manifestaçãoQuebrado[2]}, descrição: {manifestaçãoQuebrado[3]}')
+        elif opcao == 3:
+            print('Lista de todas as reclamações:')
+            for manifestação in listaReclamacao:
+                manifestaçãoQuebrado = manifestação.split('#')
+                print(
+                    f'Protocolo:{manifestaçãoQuebrado[0]}, Nome:{manifestaçãoQuebrado[1]},Tipo da manifestação: {manifestaçãoQuebrado[2]}, descrição: {manifestaçãoQuebrado[3]}')
+        elif opcao == 4:
+            print('Lista de todas os elogios:')
+            for manifestação in listaElogio:
+                manifestaçãoQuebrado = manifestação.split('#')
+                print(
+                    f'Protocolo:{manifestaçãoQuebrado[0]}, Nome:{manifestaçãoQuebrado[1]},Tipo da manifestação: {manifestaçãoQuebrado[2]}, descrição: {manifestaçãoQuebrado[3]}')
+        elif opcao == 5:
+                id = int(input('Digite o número de (ID) do protocolo'))
+                protocoloSplited = listaProtocolos[id - 1].split('#')
+                print(
+                    f'Protocolo:{protocoloSplited[0]}, Nome:{protocoloSplited[1]},Tipo da manifestação: {protocoloSplited[2]}, descrição: {protocoloSplited[3]}')
+        print('\033[4;35;35mFim do programa 👋\033[m')
+        print('\033[1;34;34m-~\033[m' * 25)
+
+        if opcao == 6:
+
+            print('Enviar uma nova manifestação:')
+            print('1) Enviar uma Sugestao')
+            print('2) Enviar uma Reclamacao')
+            print('3) Enviar um Elogio')
+            opcao2 = int(input('Digite sua opção: '))
+            if opcao2 < 1 and opcao2 > 3:
+                print('informe um número válido')
+                while True:
+                    print('1) Enviar uma Sugestao')
+                    print('2) Enviar uma Reclamacao')
+                    print('3) Enviar um Elogio')
+        break
+
+janela = Tk()
+janela.title("Ouvidoria ABC")
+texto = Label(janela, text="Clique no botão para ver as opções")
+texto.grid(column=0, row=0, padx=10, pady=10)
+
+botao = Button(janela, text="opções", command=ouvidoria)
+botao.grid(column=0, row=1, padx=10, pady=10)
+
+texto_resposta = Label(janela, text="")
+texto_resposta.grid(column=0, row=2, padx=10, pady=10)
+
+
+janela.mainloop()
