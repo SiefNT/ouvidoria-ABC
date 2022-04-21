@@ -1,92 +1,173 @@
-import requests
-from tkinter import *
+from datetime import datetime
+import json
+from os.path import exists
+import enum
+import time
 
-def ouvidoria():
-    print()
-    print('\033[1;34;34m-~\033[m' * 25)
-    print('\033[4;35;35mMenu\033[m')
-    print()
-    print('\033[1;34;36m🎓 Ouvidoria ABC 🎓\033[m')
-    print()
-    opcao = 0
-    listaProtocolos = []
-    listaSugetao = []
-    listaReclamacao = []
-    listaElogio = []
-    protocoloQuebrado = []
-    protocoloSplited = []
-    while opcao != 7:
+class xtipo(enum.Enum):
+    Sugestão = 1
+    Reclamação = 2
+    Elogio = 3
 
-        print('\033[4;34;36mOpções:\033[m')
-        print('1) Listar todas as manifestações')
-        print('2) Listar todas as sugestões')
-        print('3) Listar todas as reclamações')
-        print('4) Listar todos os elogios')
-        print('5) Pesquisar protocolo por número de (ID)')
-        print('6) Enviar uma manifestação')
-        print('7) Sair do programa')
-        print()
-        opcao = int(input('Digite a opção: '))
-        if 7 < opcao > 1:
-            print('Digite uma opção valida!')
-            continue
-        elif opcao == 1:
-            print('Lista de todas as manifestações:')
-            for manifestação in listaProtocolos:
-                manifestaçãoQuebrado = manifestação.split('#')
-                print(
-                    f'Protocolo:{manifestaçãoQuebrado[0]}, Nome:{manifestaçãoQuebrado[1]},Tipo da manifestação: {manifestaçãoQuebrado[2]}, descrição: {manifestaçãoQuebrado[3]}')
+
+if exists(f'./dados.json'):
+    with open(f'./dados.json') as d:
+        try:
+            protocol_dict = json.load(d)
+        except:
+            protocol_dict = {'dados': {},
+                             'index': 0}
+            with open(f'./dados.json', 'w') as f:
+                f.write(json.dumps(protocol_dict))
+else:
+    protocol_dict = {'dados': {},
+                     'index': 0}
+    with open(f'./dados.json', 'w') as f:
+        f.write(json.dumps(protocol_dict))
+
+
+def add_manifestacao():
+    msg = ''
+    while True:
+        print('\n \033[4;34;36m🎓 Ouvidoria Universidade ABC.🎓\033[m')
+        print('Enviar uma nova manifestação:')
+        print('1) Enviar uma Sugestao')
+        print('2) Enviar uma Reclamacao')
+        print('3) Enviar um Elogio')
+        print('4) Voltar ao menu\n')
+        if msg != '':
+            print(msg)
+            msg = ''
+
+        def form_add(tipo):
+            if 0 < tipo < 4:
+                requisitante = input('Digite seu nome: ')
+                mensagem = input(f'Digite a/o {xtipo(tipo).name}: ')
+                date_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                protocol_dict['dados'][str(protocol_dict['index'] + 1)] = {'tipo': tipo,
+                                                                           'requisitante': requisitante,
+                                                                           'mensagem': mensagem,
+                                                                           'data': date_time}
+                protocol_dict['index'] += 1
+                with open(f'./dados.json', 'w') as f:
+                    f.write(json.dumps(protocol_dict))
+
+                #print(protocol_dict)
+                pass
+
+        opcao = int(input('\n O que você precisa : '))
+        if opcao == 1:
+            form_add(1)
+
+            def progress_bar(done):
+                print("\rProgress: [{0:50s}] {1:.1f}%".format('=' * int(done * 50), done * 100), end='')
+            def test():
+                for n in range(101):
+                    progress_bar(n / 100)
+                    time.sleep(0.005)
+
+            test()
+
         elif opcao == 2:
-            print('Lista de todas as sugestões:')
-            for manifestação in listaSugetao:
-                manifestaçãoQuebrado = manifestação.split('#')
-                print(
-                    f'Protocolo:{manifestaçãoQuebrado[0]}, Nome:{manifestaçãoQuebrado[1]},Tipo da manifestação: {manifestaçãoQuebrado[2]}, descrição: {manifestaçãoQuebrado[3]}')
+            form_add(2)
         elif opcao == 3:
-            print('Lista de todas as reclamações:')
-            for manifestação in listaReclamacao:
-                manifestaçãoQuebrado = manifestação.split('#')
-                print(
-                    f'Protocolo:{manifestaçãoQuebrado[0]}, Nome:{manifestaçãoQuebrado[1]},Tipo da manifestação: {manifestaçãoQuebrado[2]}, descrição: {manifestaçãoQuebrado[3]}')
+            form_add(3)
         elif opcao == 4:
-            print('Lista de todas os elogios:')
-            for manifestação in listaElogio:
-                manifestaçãoQuebrado = manifestação.split('#')
-                print(
-                    f'Protocolo:{manifestaçãoQuebrado[0]}, Nome:{manifestaçãoQuebrado[1]},Tipo da manifestação: {manifestaçãoQuebrado[2]}, descrição: {manifestaçãoQuebrado[3]}')
+            break
+        else:
+            msg = 'Opcão inválida.'
+
+
+def listas_manifestacoes(tipo):
+    print('\n  \033[4;34;36m🎓 Ouvidoria Universidade ABC.🎓\033[m')
+    print('Lista de todas as manifestações: \n ')
+    # print(json.dumps(protocol_dict, indent=4))
+    for key in protocol_dict['dados']:
+        if tipo == protocol_dict['dados'][key]['tipo'] or tipo == 4:
+            # print(key, protocol_dict['dados'][key]['tipo'],protocol_dict['dados'][key]['nome'], protocol_dict['dados'][key]['mensagem'], protocol_dict['dados'][key]['data'])
+            print(f"Protocolo: {key}")
+            print(f"Data : {protocol_dict['dados'][key]['data']}")
+            print(f"Tipo : {xtipo(int(protocol_dict['dados'][key]['tipo'])).name}")
+            print(f"Requisitante: {protocol_dict['dados'][key]['requisitante']}")
+            print(f"Mensagem : {protocol_dict['dados'][key]['mensagem']}")
+            print('-'*25)
+    input('Pressione "enter" para voltar para o menu inicial...')
+
+
+def consulta_protocolo():
+    while True:
+        print('\n  \033[4;34;36m🎓 Ouvidoria Universidade ABC.🎓\033[m')
+        print('      Consulte seu protocolo ')
+        key = str(input())
+        if key in protocol_dict['dados'].keys():
+            print(f"Protocolo: {key}")
+            print(f"Data : {protocol_dict['dados'][key]['data']}")
+            print(f"Tipo : {xtipo(int(protocol_dict['dados'][key]['tipo'])).name}")
+            print(f"Requisitante: {protocol_dict['dados'][key]['requisitante']}")
+            print(f"Mensagem : {protocol_dict['dados'][key]['mensagem']}")
+            input('Pressione "enter" para continuar...')
+            break
+        else:
+            opcao = 0
+            while True:
+                print('\n Lamento, Protocolo não localizado ')
+                print('1) Tentar novamente')
+                print('2) Voltar ao menu inicial')
+                opcao = int(input())
+                if opcao == 1:
+                    break
+                elif opcao == 2:
+                    break
+                else:
+                    print('Opcão inválida. Tente novamente.')
+            if opcao == 2:
+                break
+
+
+def menu():
+    msg = ''
+    while True:
+        print('\033[4;34;36m🎓 Ouvidoria Universidade ABC.🎓\033[m\n ')
+        print('1) Listar todas as sugestões ')
+        print('2) Listar todas as reclamações ')
+        print('3) Listar todos os elogios ')
+        print('4) Listar todas as manifestações ')
+        print('5) Enviar uma manifestação ')
+        print('6) Pesquisar protocolo por número (ID) ')
+        print('7) Sair\n')
+        if msg != '':
+            print(msg)
+            msg = ''
+        opcao = int(input('Escolha o número correspondente ao que precisa :''\n'))
+        if opcao == 1:
+            listas_manifestacoes(1)
+        elif opcao == 2:
+            listas_manifestacoes(2)
+        elif opcao == 3:
+            listas_manifestacoes(3)
+        elif opcao == 4:
+            listas_manifestacoes(4)
         elif opcao == 5:
-                id = int(input('Digite o número de (ID) do protocolo'))
-                protocoloSplited = listaProtocolos[id - 1].split('#')
-                print(
-                    f'Protocolo:{protocoloSplited[0]}, Nome:{protocoloSplited[1]},Tipo da manifestação: {protocoloSplited[2]}, descrição: {protocoloSplited[3]}')
-        print('\033[4;35;35mFim do programa 👋\033[m')
-        print('\033[1;34;34m-~\033[m' * 25)
+            add_manifestacao()
+        elif opcao == 6:
+            consulta_protocolo()
+        elif opcao == 7:
 
-        if opcao == 6:
+            def progress_bar(done):
+                print("\rProgress: [{0:50s}] {1:.1f}%".format('=' * int(done * 50), done * 100), end='')
 
-            print('Enviar uma nova manifestação:')
-            print('1) Enviar uma Sugestao')
-            print('2) Enviar uma Reclamacao')
-            print('3) Enviar um Elogio')
-            opcao2 = int(input('Digite sua opção: '))
-            if opcao2 < 1 and opcao2 > 3:
-                print('informe um número válido')
-                while True:
-                    print('1) Enviar uma Sugestao')
-                    print('2) Enviar uma Reclamacao')
-                    print('3) Enviar um Elogio')
-        break
+            def test():
+                for n in range(101):
+                    progress_bar(n / 100)
+                    time.sleep(0.005)
 
-janela = Tk()
-janela.title("Ouvidoria ABC")
-texto = Label(janela, text="Clique no botão para ver as opções")
-texto.grid(column=0, row=0, padx=10, pady=10)
-
-botao = Button(janela, text="opções", command=ouvidoria)
-botao.grid(column=0, row=1, padx=10, pady=10)
-
-texto_resposta = Label(janela, text="")
-texto_resposta.grid(column=0, row=2, padx=10, pady=10)
+            test()
+            print()
+            print('Programa finalizado.')
+            print('\033[4;32;32m🦗 Até mais pequeno gafanhoto! 🦗\033[m')
+            break
+        else:
+            msg = 'Opcão inválida.'
 
 
-janela.mainloop()
+menu()
