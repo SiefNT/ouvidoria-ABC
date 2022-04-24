@@ -75,7 +75,7 @@ def add_manifestacao():
         elif opcao == 4:
             break
         else:
-            msg = 'Opcão inválida.'
+            msg='👻Opcão inválida.👻'
 
 
 def listas_manifestacoes(tipo):
@@ -110,7 +110,7 @@ def consulta_protocolo():
         else:
             opcao = 0
             while True:
-                print('\n Lamento, Protocolo não localizado ')
+                print('\nLamento, Protocolo não localizado ')
                 print('1) Tentar novamente')
                 print('2) Voltar ao menu inicial')
                 opcao = int(input())
@@ -119,7 +119,7 @@ def consulta_protocolo():
                 elif opcao == 2:
                     break
                 else:
-                    print('Opcão inválida. Tente novamente.')
+                    print('\n \033[4;35;35m👻 Opcão inválida. Tente novamente. 👻\033[m')
             if opcao == 2:
                 break
 
