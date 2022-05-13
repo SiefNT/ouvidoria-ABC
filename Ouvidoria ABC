@@ -1,12 +1,20 @@
+import time
 from datetime import datetime
 import json
 from os.path import exists
 import enum
-import time
+
+import mysql.connector
+
 class xtipo(enum.Enum):
     Sugestão = 1
     Reclamação = 2
     Elogio = 3
+
+connection = mysql.connector.connect(user='root', password='root',
+                              host='127.0.0.1',
+                              database='ouvidoria')
+
 if exists(f'./dados.json'):
     with open(f'./dados.json') as d:
         try:
@@ -21,10 +29,15 @@ else:
                      'index': 0}
     with open(f'./dados.json', 'w') as f:
         f.write(json.dumps(protocol_dict))
+
+
 def add_manifestacao():
+
+    cursor = connection.cursor()
+
     msg = ''
     while True:
-        print('\n \033[4;34;36m🎓 Ouvidoria Universidade ABC.🎓\033[m')
+        print('\n \033[4;34;36m 🎓 Ouvidoria Universidade ABC. 🎓\033[m')
         print('Enviar uma nova manifestação:')
         print('1) Enviar uma Sugestao')
         print('2) Enviar uma Reclamacao')
@@ -33,9 +46,10 @@ def add_manifestacao():
         if msg != '':
             print(msg)
             msg = ''
+
         def form_add(tipo):
             if 0 < tipo < 4:
-                requisitante = str(input('Digite seu nome: '))
+                requisitante = input('Digite seu nome: ')
                 mensagem = input(f'Digite a/o {xtipo(tipo).name}: ')
                 date_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
                 protocol_dict['dados'][str(protocol_dict['index'] + 1)] = {'tipo': tipo,
@@ -45,19 +59,15 @@ def add_manifestacao():
                 protocol_dict['index'] += 1
                 with open(f'./dados.json', 'w') as f:
                     f.write(json.dumps(protocol_dict))
+
                 protocolo = protocol_dict['index']
                 print(f'\033[4;35;35mSeu protocolo é: {protocolo}. Anote-o para consulta se necessário.\033[m')
                 pass
+
         opcao = int(input('\n O que você precisa : '))
         if opcao == 1:
+
             form_add(1)
-            def progress_bar(done):
-                print("\rProgress: [{0:50s}] {1:.1f}%".format('=' * int(done * 50), done * 100), end='')
-            def test():
-                for n in range(101):
-                    progress_bar(n / 100)
-                    time.sleep(0.005)
-            test()
         elif opcao == 2:
             form_add(2)
         elif opcao == 3:
@@ -65,13 +75,30 @@ def add_manifestacao():
         elif opcao == 4:
             break
         else:
-            msg='👻Opcão inválida.👻'
+            msg = 'Opcão inválida.'
+
+        for key in protocol_dict['dados']:
+            protocolo = protocol_dict['index']
+            tipo = protocol_dict['dados'][key]['tipo']
+            requisitante = protocol_dict['dados'][key]['requisitante']
+            mensagem1 = protocol_dict['dados'][key]['mensagem']
+
+        string = f"INSERT INTO manifestacoes (protocolo,tipo,requisitante,mensagem) VALUES ('{protocolo}','{tipo}','{requisitante}','{mensagem1}');"
+
+        cursor.execute(string)
+        record = cursor.fetchone()
+        connection.commit()
+
+    cursor.close()
+
 
 
 def listas_manifestacoes(tipo):
-    print('\n  \033[4;34;36m🎓 Ouvidoria Universidade ABC.🎓\033[m')
+    print('\n \033[4;34;36m 🎓 Ouvidoria Universidade ABC. 🎓\033[m')
     print('Lista de todas as manifestações: \n ')
     # print(json.dumps(protocol_dict, indent=4))
+
+
     for key in protocol_dict['dados']:
         if tipo == protocol_dict['dados'][key]['tipo'] or tipo == 4:
             # print(key, protocol_dict['dados'][key]['tipo'],protocol_dict['dados'][key]['nome'], protocol_dict['dados'][key]['mensagem'], protocol_dict['dados'][key]['data'])
@@ -80,12 +107,15 @@ def listas_manifestacoes(tipo):
             print(f"Tipo : {xtipo(int(protocol_dict['dados'][key]['tipo'])).name}")
             print(f"Requisitante: {protocol_dict['dados'][key]['requisitante']}")
             print(f"Mensagem : {protocol_dict['dados'][key]['mensagem']}")
-            print('-'*25)
+            print('---------------------------')
     input('Pressione "enter" para voltar para o menu inicial...')
+
+
+
 
 def consulta_protocolo():
     while True:
-        print('\n  \033[4;34;36m🎓 Ouvidoria Universidade ABC.🎓\033[m')
+        print('\n \033[4;34;36m 🎓 Ouvidoria Universidade ABC. 🎓\033[m')
         print('      Consulte seu protocolo ')
         key = str(input())
         if key in protocol_dict['dados'].keys():
@@ -100,7 +130,6 @@ def consulta_protocolo():
             opcao = 0
             while True:
                 print('\n Lamento, Protocolo não localizado ')
-                print('\nLamento, Protocolo não localizado ')
                 print('1) Tentar novamente')
                 print('2) Voltar ao menu inicial')
                 opcao = int(input())
@@ -109,14 +138,15 @@ def consulta_protocolo():
                 elif opcao == 2:
                     break
                 else:
-                    print('\n \033[4;35;35m👻 Opcão inválida. Tente novamente. 👻\033[m')
+                    print('Opcão inválida. Tente novamente.')
             if opcao == 2:
                 break
+
 
 def menu():
     msg = ''
     while True:
-        print('\033[4;34;36m🎓 Ouvidoria Universidade ABC.🎓\033[m\n ')
+        print('\033[4;34;36m 🎓 Ouvidoria Universidade ABC. 🎓\033[m')
         print('1) Listar todas as sugestões ')
         print('2) Listar todas as reclamações ')
         print('3) Listar todos os elogios ')
@@ -152,6 +182,11 @@ def menu():
             print('Programa finalizado.')
             print('\033[4;32;32m🦗 Até mais pequeno gafanhoto! 🦗\033[m')
             break
+
         else:
-            msg = '👻Opcão inválida.👻'
+            msg = 'Opcão inválida.'
+
+
 menu()
+
+connection.close()
